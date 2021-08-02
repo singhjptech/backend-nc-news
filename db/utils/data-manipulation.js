@@ -11,6 +11,27 @@ exports.mapUsers = (userData) => {
   });
 };
 
-// exports.mapArticles = (articleData) => {
-//   return articleData.map()
-// }
+exports.formatArticlesData = (articleData, slugs) => {
+  const result = [];
+
+  articleData.forEach((article) => {
+    let topicId = 
+    slugs.forEach(slug => {
+      if (slug.slug === article.)
+    })
+    return [
+      article.title,
+      article.body,
+      article.votes,
+      article.topic,
+      article.author,
+      article.created_at,
+    ];
+  });
+};
+
+exports.mapComments = (commentData) => {
+  return commentData.map((comment) => {
+    return [comment.votes, comment.created_at, comment.body];
+  });
+};
