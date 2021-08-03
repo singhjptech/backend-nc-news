@@ -2,7 +2,7 @@ const {
   mapTopic,
   mapUsers,
   formatComments,
-  formatArticlesData,
+  formatArticles,
 } = require("../db/utils/data-manipulation");
 
 describe("mapTopic()", () => {
@@ -98,16 +98,16 @@ describe("mapUsers()", () => {
   });
 });
 
-describe("formatArticlesData()", () => {
+describe("formatArticles()", () => {
   test("should return an array", () => {
     const input = [];
-    const actualOutput = formatArticlesData(input);
+    const actualOutput = formatArticles(input);
     expect(Array.isArray(actualOutput)).toEqual(true);
   });
 
   test("should not mutate the input array ", () => {
     const input = [];
-    expect(formatArticlesData(input)).not.toBe(input);
+    expect(formatArticles(input)).not.toBe(input);
   });
 
   test("should return an array with length equal to amoumnt of objects in input array", () => {
@@ -131,7 +131,7 @@ describe("formatArticlesData()", () => {
         new Date(1604728980000),
       ],
     ];
-    expect(formatArticlesData(input)).toEqual(expectedOutput);
+    expect(formatArticles(input)).toEqual(expectedOutput);
     expect(expectedOutput).toHaveLength(1);
   });
 
@@ -173,7 +173,7 @@ describe("formatArticlesData()", () => {
         new Date(1605107340000),
       ],
     ];
-    expect(formatArticlesData(input)).toEqual(expectedOutput);
+    expect(formatArticles(input)).toEqual(expectedOutput);
     expect(expectedOutput).toHaveLength(2);
   });
 });
@@ -182,7 +182,7 @@ describe("formatComments()", () => {
   test("should return an array and should be empty if no comments are passed", () => {
     const input1 = [];
     const input2 = [];
-    const actualOutput = formatArticlesData(input1, input2);
+    const actualOutput = formatArticles(input1, input2);
     expect(actualOutput).toEqual([]);
     expect(Array.isArray(actualOutput)).toEqual(true);
   });
@@ -228,10 +228,7 @@ describe("formatComments()", () => {
         created_at: new Date(1591438200000),
       },
     ];
-
-    const actual = formatComments(input1, input2);
-
-    const expected = [
+    const expectedOutput = [
       [
         "butter_bridge",
         2,
@@ -248,6 +245,7 @@ describe("formatComments()", () => {
         "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
       ],
     ];
-    expect(actual).toEqual(expected);
+    expect(formatComments(input1, input2)).toEqual(expectedOutput);
+    expect(expectedOutput).toHaveLength(2);
   });
 });

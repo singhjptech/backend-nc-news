@@ -11,7 +11,7 @@ exports.mapUsers = (userData) => {
   });
 };
 
-exports.formatArticlesData = (articleData) => {
+exports.formatArticles = (articleData) => {
   return articleData.map((article) => {
     if (Object.keys(article).includes("votes")) {
       return [
