@@ -11,27 +11,45 @@ exports.mapUsers = (userData) => {
   });
 };
 
-exports.formatArticlesData = (articleData, slugs) => {
-  const result = [];
-
-  articleData.forEach((article) => {
-    let topicId = 
-    slugs.forEach(slug => {
-      if (slug.slug === article.)
-    })
-    return [
-      article.title,
-      article.body,
-      article.votes,
-      article.topic,
-      article.author,
-      article.created_at,
-    ];
+exports.formatArticlesData = (articleData) => {
+  return articleData.map((article) => {
+    if (Object.keys(article).includes("votes")) {
+      return [
+        article.title,
+        article.body,
+        article.votes,
+        article.topic,
+        article.author,
+        article.created_at,
+      ];
+    } else {
+      return [
+        article.title,
+        article.body,
+        0,
+        article.topic,
+        article.author,
+        article.created_at,
+      ];
+    }
   });
 };
 
-exports.mapComments = (commentData) => {
-  return commentData.map((comment) => {
-    return [comment.votes, comment.created_at, comment.body];
+exports.formatComments = (commentData, articleRef) => {
+  let commentWithArticle = [];
+
+  commentData.forEach((comment) => {
+    articleRef.forEach((article) => {
+      if (comment.belongs_to === article.title) {
+        commentWithArticle.push([
+          comment.created_by,
+          article.article_id,
+          comment.votes,
+          comment.created_at,
+          comment.body,
+        ]);
+      }
+    });
   });
+  return commentWithArticle;
 };

@@ -1,8 +1,8 @@
 const {
   mapTopic,
   mapUsers,
-  mapArticles,
-  mapComments,
+  formatComments,
+  formatArticlesData,
 } = require("../db/utils/data-manipulation");
 
 describe("mapTopic()", () => {
@@ -98,16 +98,16 @@ describe("mapUsers()", () => {
   });
 });
 
-describe("mapArticles()", () => {
+describe("formatArticlesData()", () => {
   test("should return an array", () => {
     const input = [];
-    const actualOutput = mapArticles(input);
+    const actualOutput = formatArticlesData(input);
     expect(Array.isArray(actualOutput)).toEqual(true);
   });
 
   test("should not mutate the input array ", () => {
     const input = [];
-    expect(mapArticles(input)).not.toBe(input);
+    expect(formatArticlesData(input)).not.toBe(input);
   });
 
   test("should return an array with length equal to amoumnt of objects in input array", () => {
@@ -131,7 +131,7 @@ describe("mapArticles()", () => {
         new Date(1604728980000),
       ],
     ];
-    expect(mapArticles(input)).toEqual(expectedOutput);
+    expect(formatArticlesData(input)).toEqual(expectedOutput);
     expect(expectedOutput).toHaveLength(1);
   });
 
@@ -173,23 +173,26 @@ describe("mapArticles()", () => {
         new Date(1605107340000),
       ],
     ];
-    expect(mapArticles(input)).toEqual(expectedOutput);
+    expect(formatArticlesData(input)).toEqual(expectedOutput);
     expect(expectedOutput).toHaveLength(2);
   });
 });
 
-describe("mapComments()", () => {
-  test("should return an array", () => {
-    const input = [];
-    const actualOutput = mapComments(input);
+describe("formatComments()", () => {
+  test("should return an array and should be empty if no comments are passed", () => {
+    const input1 = [];
+    const input2 = [];
+    const actualOutput = formatArticlesData(input1, input2);
+    expect(actualOutput).toEqual([]);
     expect(Array.isArray(actualOutput)).toEqual(true);
   });
-  test("should not mutate the input array ", () => {
-    const input = [];
-    expect(mapComments(input)).not.toBe(input);
+  test("should not mutate the input arrays ", () => {
+    const input1 = [];
+    const input2 = [];
+    expect(formatComments(input1, input2)).not.toBe(input1 || input2);
   });
-  test("should return an array with length equal to amoumnt of objects in input array", () => {
-    const input = [
+  test("should return formated comments for all comment objects passed in input ", () => {
+    const input1 = [
       {
         body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
         belongs_to: "They're not exactly dogs, are they?",
@@ -197,15 +200,54 @@ describe("mapComments()", () => {
         votes: 16,
         created_at: new Date(1586179020000),
       },
+      {
+        body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "butter_bridge",
+        votes: 14,
+        created_at: new Date(1604113380000),
+      },
     ];
-    const expectedOutput = [
+
+    const input2 = [
+      {
+        article_id: 1,
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: new Date(1594329060000),
+        votes: 100,
+      },
+      {
+        article_id: 2,
+        title: "They're not exactly dogs, are they?",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "Well? Think about it.",
+        created_at: new Date(1591438200000),
+      },
+    ];
+
+    const actual = formatComments(input1, input2);
+
+    const expected = [
       [
+        "butter_bridge",
+        2,
         16,
         new Date(1586179020000),
         "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
       ],
+
+      [
+        "butter_bridge",
+        1,
+        14,
+        new Date(1604113380000),
+        "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+      ],
     ];
-    expect(mapComments(input)).toEqual(expectedOutput);
-    expect(expectedOutput).toHaveLength(1);
+    expect(actual).toEqual(expected);
   });
 });
