@@ -1,8 +1,7 @@
 const express = require("express");
 const apiRouter = express.Router();
+const getEndpoints = require("../controllers/api.controllers");
 
-apiRouter.get("/", (req, res) => {
-  res.status(200).send({ msg: " all ok in the router " });
-});
+apiRouter.get("/api", getEndpoints);
 
 module.exports = apiRouter;
