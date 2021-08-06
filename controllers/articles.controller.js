@@ -1,14 +1,8 @@
 const {
+  selectArticles,
   selectArticleById,
   updateArticleById,
 } = require("../models/articles.model");
-
-const getArticles = (req, res, next) => {
-  console.log("hello from article control");
-  //selectArticles().then((articles) => {
-  //res.status(200).send({ articles });
-  // });
-};
 
 const getArticlesById = (req, res, next) => {
   const { article_id } = req.params;
@@ -25,6 +19,15 @@ const patchArticlesById = (req, res, next) => {
   updateArticleById(article_id, newVote)
     .then((article) => {
       res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+const getArticles = (req, res, next) => {
+  const { sort_by, order, topic } = req.query;
+  selectArticles(sort_by, order, topic)
+    .then((articles) => {
+      res.status(200).send({ articles });
     })
     .catch(next);
 };

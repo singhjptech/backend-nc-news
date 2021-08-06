@@ -11,6 +11,11 @@
     "start": "node listen.js",
     "seed:prod": "NODE_ENV=production DATABASE_URL=$(heroku config:get DATABASE_URL) npm run seed"
   },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-sorted"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/northcoders/be-nc-news.git"
@@ -30,6 +35,7 @@
     "supertest": "^6.1.4"
   },
   "devDependencies": {
+    "jest-sorted": "^1.0.12",
     "pg-format": "^1.0.4"
   }
 }

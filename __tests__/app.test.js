@@ -42,7 +42,7 @@ describe("/api", () => {
   });
 
   describe("/articles/:article_id", () => {
-    test("GET 200: returns with the data object for the article_id", async () => {
+    test("GET 200: return with the data object for the article_id", async () => {
       const { body } = await request(app).get("/api/articles/1").expect(200);
       expect(body.article).toEqual(
         expect.objectContaining({
@@ -64,7 +64,7 @@ describe("/api", () => {
   });
 
   describe("/articles/:article_id", () => {
-    test("PATCH 200: returns the updated data object for votes key on article as requested", async () => {
+    test("PATCH 200: return the updated data object for votes key on article as requested", async () => {
       const { body } = await request(app)
         .patch("/api/articles/1")
         .send({ inc_votes: 25 })
@@ -97,6 +97,41 @@ describe("/api", () => {
         .send({ random_key: 25 })
         .expect(400);
       expect(body).toEqual({ msg: "bad request" });
+    });
+  });
+
+  describe("/api/articles", () => {
+    test("GET 200: return articles objects", async () => {
+      const { body } = await request(app).get("/api/articles").expect(200);
+      expect(body.articles.length).toBe(12);
+      body.articles.forEach((article) => {
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          comment_count: expect.any(Number),
+        });
+      });
+    });
+
+    test("GET 200: return articles sorted in by ascending order", async () => {
+      const { body } = await request(app)
+        .get("/api/articles?sort_by=article_id&order=asc")
+        .expect(200);
+      expect(body.articles[0].article_id).toBe(1);
+      expect(body.articles).toBeSortedBy("article_id");
+    });
+
+    test("GET 200: return articles sorted by descending order", async () => {
+      const { body } = await request(app)
+        .get("/api/articles?topic=cats&sort_by=article_id&order=asc")
+        .expect(200);
+      expect(body.articles[0].article_id).toBe(5);
+      expect(body.articles[0].topic).toBe("cats");
+      expect(body.articles).toBeSortedBy("article_id");
     });
   });
 });
