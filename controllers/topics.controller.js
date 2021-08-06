@@ -1,9 +1,12 @@
-const selectTopics = require("../models/topics.model");
+const topics = require("../db/data/test-data/topics");
+const { selectTopics } = require("../models/topics.model");
 
 exports.getTopics = (req, res, next) => {
+  console.log("hello from controller");
   selectTopics()
-    .then((topic) => {
-      res.status(200).send({ topic });
+    .then((topics) => {
+      console.log(topics);
+      res.status(200).send({ topics });
     })
     .catch(next);
 };

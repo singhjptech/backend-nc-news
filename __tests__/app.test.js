@@ -10,10 +10,14 @@ afterAll(() => db.end());
 
 describe("/api", () => {
   test("responds with JSON object of endpoints", () => {
-    return request(app).get("/api").expect(200);
-    expect(body).toEqual({
-      msg: "serves as endpoint for all the available points",
-    });
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual({
+          msg: "serves as endpoint for all the available points",
+        });
+      });
   });
 
   describe("/api/... 404 for non-existent route/typos", () => {
