@@ -1,4 +1,3 @@
-// extract any functions you are using to manipulate your data, into this file
 exports.mapTopic = (topicData) => {
   return topicData.map((topic) => {
     return [topic.slug, topic.description];

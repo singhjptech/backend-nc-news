@@ -7,7 +7,7 @@
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
     "test": "jest",
-    "view-test-db": "psql -f view-test-db.sql > output-test.txt"
+    "view-test-db": "psql -f view-test-db.sql > test-db.txt"
   },
   "repository": {
     "type": "git",

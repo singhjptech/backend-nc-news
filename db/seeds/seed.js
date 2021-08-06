@@ -15,48 +15,48 @@ const seed = async (data) => {
   await db.query(`DROP TABLE IF EXISTS topics;`);
 
   await db.query(`CREATE TABLE topics (
-    slug VARCHAR(100) PRIMARY KEY NOT NULL,  
-    description VARCHAR(200) NOT NULL);`);
+    slug VARCHAR(255) PRIMARY KEY NOT NULL,  
+    description VARCHAR(255) NOT NULL);`);
 
   await db.query(`CREATE TABLE users (
-    username VARCHAR(100) PRIMARY KEY NOT NULL,
-    avatar_url VARCHAR(200) NOT NULL,
-    name VARCHAR(100) NOT NULL);`);
+    username VARCHAR(255) PRIMARY KEY NOT NULL,
+    avatar_url VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL);`);
 
   await db.query(`CREATE TABLE articles (
     article_id SERIAL PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    body TEXT,
+    title VARCHAR(255) NOT NULL,
+    body TEXT NOT NULL,
     votes INT DEFAULT 0,
-    topic VARCHAR(200) NOT NULL REFERENCES topics(slug),
-    author VARCHAR(200) NOT NULL REFERENCES users(username),
-    created_at DATE DEFAULT CURRENT_TIMESTAMP);`);
+    topic VARCHAR(255) NOT NULL REFERENCES topics(slug),
+    author VARCHAR(255) NOT NULL REFERENCES users(username),
+    created_at TIMESTAMP DEFAULT current_timestamp);`);
 
   await db.query(`CREATE TABLE comments (
     comment_id SERIAL PRIMARY KEY,
-    author VARCHAR(200) NOT NULL REFERENCES users(username),
+    author VARCHAR(255) NOT NULL REFERENCES users(username),
     article_id INT NOT NULL REFERENCES articles(article_id),
     votes INT DEFAULT 0,
-    created_at DATE DEFAULT CURRENT_TIMESTAMP,
-    body TEXT);`);
+    created_at TIMESTAMP DEFAULT current_timestamp,
+    body TEXT NOT NULL);`);
 
   const topicValues = mapTopic(topicData);
   const topicInsertStr = format(
-    `INSERT INTO topics(slug, description) VALUES %L RETURNING *;`,
+    `INSERT INTO topics (slug, description) VALUES %L RETURNING *;`,
     topicValues
   );
   await db.query(topicInsertStr);
 
   const userValues = mapUsers(userData);
   const userInsertStr = format(
-    `INSERT INTO users(username, avatar_url, name) VALUES %L RETURNING *;`,
+    `INSERT INTO users (username, avatar_url, name) VALUES %L RETURNING *;`,
     userValues
   );
   await db.query(userInsertStr);
 
   const articleValues = formatArticles(articleData);
   const articleInsertStr = format(
-    `INSERT INTO articles(title, body, votes, topic, author, created_at) VALUES %L RETURNING *;`,
+    `INSERT INTO articles (title, body, votes, topic, author, created_at) VALUES %L RETURNING *;`,
     articleValues
   );
   const articleResult = await db.query(articleInsertStr);
