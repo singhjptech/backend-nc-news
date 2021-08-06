@@ -3,7 +3,6 @@ const app = require("../app");
 const db = require("../db/connection");
 const testData = require("../db/data/test-data/index.js");
 const seed = require("../db/seeds/seed.js");
-const { endpoints } = require("../controllers/api.controller");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -43,6 +42,24 @@ describe("/api", () => {
             });
           });
         });
+    });
+  });
+
+  describe("GET /api/articles/:article_id", () => {
+    test("200: responds with the data object for the required article", async () => {
+      const { body } = await request(app).get("/api/articles/1").expect(200);
+      expect(body.article).toEqual(
+        expect.objectContaining({
+          author: "butter_bridge",
+          title: "Living in the shadow of a great man",
+          article_id: expect.any(Number),
+          body: "I find this existence challenging",
+          topic: "mitch",
+          created_at: expect.any(String),
+          votes: 100,
+          comment_count: expect.any(Number),
+        })
+      );
     });
   });
 });
