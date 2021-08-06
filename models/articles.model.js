@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const articles = require("../db/data/test-data/articles");
 
 const selectArticleById = async (article_id) => {
   const queryStr = `SELECT articles.*, COUNT (comment_id) AS comment_count
@@ -14,4 +15,17 @@ const selectArticleById = async (article_id) => {
   return articleWithCommentCount;
 };
 
-module.exports = { selectArticleById };
+const updateArticleById = async (article_id, newVote) => {
+  const article = await selectArticleById(article_id);
+
+  const updatedArticle = article.votes + newVote;
+  await db.query(
+    `UPDATE articles SET votes = $1 WHERE article_id = $2 RETURNING *;`,
+    [updatedArticle, article_id]
+  );
+  article.votes += newVote;
+
+  return article;
+};
+
+module.exports = { selectArticleById, updateArticleById };

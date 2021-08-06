@@ -7,8 +7,8 @@ const handleCustomErrors = (err, req, res, next) => {
 };
 
 const handlePSQLErrors = (err, req, res, next) => {
-  if (err.code === "42601" || err.code === "42P01") {
-    res.status(400).send({ msg: "Bad request" });
+  if (err.code === "42601" || err.code === "42P01" || err.code === "22P02") {
+    res.status(400).send({ msg: "bad request" });
   } else {
     next(err);
   }
