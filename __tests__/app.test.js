@@ -117,21 +117,48 @@ describe("/api", () => {
       });
     });
 
-    test("GET 200: return articles sorted in by ascending order", async () => {
+    test("GET 200 - returns with an array of article objects sorted by date descending by default", async () => {
+      const { body } = await request(app).get("/api/articles").expect(200);
+      expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      expect(body.articles[0]).toEqual({
+        author: "icellusedkars",
+        title: "Eight pug gifs that remind me of mitch",
+        article_id: 3,
+        body: "some gifs",
+        topic: "mitch",
+        created_at: "2020-11-03T09:12:00.000Z",
+        votes: 0,
+        comment_count: 0,
+      });
+    });
+
+    test("GET 200: return articles sorted by ascending order", async () => {
       const { body } = await request(app)
         .get("/api/articles?sort_by=article_id&order=asc")
         .expect(200);
       expect(body.articles[0].article_id).toBe(1);
-      expect(body.articles).toBeSortedBy("article_id");
+      expect(body.articles).toBeSortedBy("article_id", { ascending: true });
     });
 
-    test("GET 200: return articles sorted by descending order", async () => {
+    test("GET 200: return empty array for an existing topic that doesn't have any articles attributed to it", async () => {
       const { body } = await request(app)
-        .get("/api/articles?topic=cats&sort_by=article_id&order=asc")
+        .get("/api/articles?topic=paper")
         .expect(200);
-      expect(body.articles[0].article_id).toBe(5);
-      expect(body.articles[0].topic).toBe("cats");
-      expect(body.articles).toBeSortedBy("article_id");
+      expect(body.articles).toHaveLength(0);
+    });
+
+    test("400 - returns with sort_by error message when an invalid column is provided at the query URL", async () => {
+      const { body } = await request(app)
+        .get("/api/articles?sort_by=notValid")
+        .expect(400);
+      expect(body.msg).toEqual("Not a valid sort_by column");
+    });
+
+    test("400 - returns with an order error message when an invalid column is provided at the query URL", async () => {
+      const { body } = await request(app)
+        .get("/api/articles?order=flat")
+        .expect(400);
+      expect(body.msg).toEqual("Not a valid order provided");
     });
   });
 });

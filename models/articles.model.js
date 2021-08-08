@@ -27,7 +27,32 @@ const updateArticleById = async (article_id, newVote) => {
   return article;
 };
 
-const selectArticles = async (sort_by, order, topic) => {
+const selectArticles = async (
+  sort_by = "created_at",
+  order = "desc",
+  topic
+) => {
+  const validColumns = [
+    "author",
+    "title",
+    "article_id",
+    "body",
+    "topic",
+    "created_at",
+    "votes",
+    "comment_count",
+  ];
+
+  const validOrderOptions = ["ASC", "asc", "desc", "DESC"];
+
+  if (!validColumns.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Not a valid sort_by column" });
+  }
+
+  if (!validOrderOptions.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Not a valid order provided" });
+  }
+
   let queryValues = [];
   let queryStr = `SELECT articles.*, COUNT (comment_id)::INT AS comment_count
     FROM articles
