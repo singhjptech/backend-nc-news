@@ -23,7 +23,7 @@ describe("/api", () => {
   });
 });
 
-describe("/api", () => {
+describe("/api/topics", () => {
   describe("/topics", () => {
     test("GET 200: returns topic objects", () => {
       return request(app)
@@ -40,22 +40,22 @@ describe("/api", () => {
         });
     });
   });
+});
 
+describe("/api/articles/", () => {
   describe("/articles/:article_id", () => {
     test("GET 200: return with the data object for the article_id", async () => {
       const { body } = await request(app).get("/api/articles/1").expect(200);
-      expect(body.article).toEqual(
-        expect.objectContaining({
-          author: "butter_bridge",
-          title: "Living in the shadow of a great man",
-          article_id: expect.any(Number),
-          body: "I find this existence challenging",
-          topic: "mitch",
-          created_at: expect.any(String),
-          votes: 100,
-          comment_count: expect.any(Number),
-        })
-      );
+      expect(body.article).toMatchObject({
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+        article_id: expect.any(Number),
+        body: "I find this existence challenging",
+        topic: "mitch",
+        created_at: expect.any(String),
+        votes: 100,
+        comment_count: expect.any(Number),
+      });
     });
     test("400: for bad requess for an invalid article_id", async () => {
       const { body } = await request(app).get("/api/articles/bad").expect(400);
@@ -69,18 +69,16 @@ describe("/api", () => {
         .patch("/api/articles/1")
         .send({ inc_votes: 25 })
         .expect(200);
-      expect(body.article).toEqual(
-        expect.objectContaining({
-          author: "butter_bridge",
-          title: "Living in the shadow of a great man",
-          article_id: expect.any(Number),
-          body: "I find this existence challenging",
-          topic: "mitch",
-          created_at: expect.any(String),
-          votes: 125,
-          comment_count: expect.any(Number),
-        })
-      );
+      expect(body.article).toMatchObject({
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+        article_id: expect.any(Number),
+        body: "I find this existence challenging",
+        topic: "mitch",
+        created_at: expect.any(String),
+        votes: 125,
+        comment_count: expect.any(Number),
+      });
     });
 
     test("400 for an invalid number of votes", async () => {
@@ -120,7 +118,7 @@ describe("/api", () => {
     test("GET 200 - returns with an array of article objects sorted by date descending by default", async () => {
       const { body } = await request(app).get("/api/articles").expect(200);
       expect(body.articles).toBeSortedBy("created_at", { descending: true });
-      expect(body.articles[0]).toEqual({
+      expect(body.articles[0]).toMatchObject({
         author: "icellusedkars",
         title: "Eight pug gifs that remind me of mitch",
         article_id: 3,
@@ -151,14 +149,58 @@ describe("/api", () => {
       const { body } = await request(app)
         .get("/api/articles?sort_by=notValid")
         .expect(400);
-      expect(body.msg).toEqual("Not a valid sort_by column");
+      expect(body).toEqual({ msg: "Not a valid sort_by column" });
     });
 
     test("400 - returns with an order error message when an invalid column is provided at the query URL", async () => {
       const { body } = await request(app)
         .get("/api/articles?order=flat")
         .expect(400);
-      expect(body.msg).toEqual("Not a valid order provided");
+      expect(body).toEqual({ msg: "Not a valid order provided" });
+    });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  describe("GET /api/articles/:article_id/comments", () => {
+    test("GET 200: returns with an array of comments, with specified properties for specified article_id)", async () => {
+      const { body } = await request(app)
+        .get("/api/articles/1/comments")
+        .expect(200);
+      expect(body.comments.length).toBe(13);
+      body.comments.forEach((comment) => {
+        expect(comment).toMatchObject({
+          comment_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+        });
+      });
+    });
+
+    test("400: returns for an invalid article_id", async () => {
+      const { body } = await request(app)
+        .get("/api/articles/inValidArticle_id/comments")
+        .expect(400);
+      expect(body.msg).toBe("bad request");
+    });
+
+    test("404: returns No article was found for article_id- ", async () => {
+      const { body } = await request(app)
+        .get("/api/articles/99999/comments")
+        .expect(404);
+      expect(body).toEqual({
+        msg: "No article was found for article_id: 99999",
+      });
+    });
+
+    test("GET - status 200 - responds with an empty array for provided article id with no comments", async () => {
+      const { body } = await request(app)
+        .get("/api/articles/4/comments")
+        .expect(200);
+      expect(body.comments).toBeInstanceOf(Array);
+      expect(body.comments).toHaveLength(0);
     });
   });
 });
