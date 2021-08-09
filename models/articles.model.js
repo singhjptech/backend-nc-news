@@ -105,9 +105,48 @@ const selectCommentsByArticleId = async (article_id) => {
   return result.rows;
 };
 
+const insertComments = async (article_id, newComment) => {
+  const resultWithArticleId = await db.query(
+    `SELECT * FROM articles WHERE article_id = $1;`,
+    [article_id]
+  );
+  if (resultWithArticleId.rows.length === 0) {
+    return Promise.reject({
+      status: 404,
+      msg: `article_id: ${article_id} is incorrect`,
+    });
+  }
+  const { username, body } = newComment;
+
+  if (username && body) {
+    const usernameResult = await db.query(
+      `SELECT * FROM users WHERE username = $1;`,
+      [username]
+    );
+    if (usernameResult.rows.length === 0) {
+      return Promise.reject({
+        status: 400,
+        msg: `username: ${username} is not recognised`,
+      });
+    }
+
+    const result = await db.query(
+      `INSERT INTO comments (author,article_id,body) VALUES($1,$2,$3) RETURNING *;`,
+      [username, article_id, body]
+    );
+    return result.rows;
+  } else {
+    return Promise.reject({
+      status: 400,
+      msg: `invalid comment request`,
+    });
+  }
+};
+
 module.exports = {
   selectArticles,
   selectArticleById,
   updateArticleById,
   selectCommentsByArticleId,
+  insertComments,
 };

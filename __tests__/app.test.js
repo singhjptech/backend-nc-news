@@ -124,7 +124,7 @@ describe("/api/articles/", () => {
         article_id: 3,
         body: "some gifs",
         topic: "mitch",
-        created_at: "2020-11-03T09:12:00.000Z",
+        created_at: expect.any(String),
         votes: 0,
         comment_count: 0,
       });
@@ -201,6 +201,66 @@ describe("/api/articles/:article_id/comments", () => {
         .expect(200);
       expect(body.comments).toBeInstanceOf(Array);
       expect(body.comments).toHaveLength(0);
+    });
+  });
+
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("POST 201: returns with the comment posted with given username and body of the comment", async () => {
+      const commentToPost = {
+        username: "butter_bridge",
+        body: "Coding is the future",
+      };
+      const { body } = await request(app)
+        .post("/api/articles/1/comments")
+        .send(commentToPost)
+        .expect(201);
+      expect(body.comment).toEqual([
+        {
+          article_id: 1,
+          author: "butter_bridge",
+          body: "Coding is the future",
+          comment_id: 19,
+          created_at: expect.any(String),
+          votes: 0,
+        },
+      ]);
+    });
+
+    test("400: returns invalid comment request - if username/body or both are empty strings", async () => {
+      const commentToPost = {
+        username: "",
+        body: "",
+      };
+      const { body } = await request(app)
+        .post("/api/articles/1/comments")
+        .send(commentToPost)
+        .expect(400);
+      expect(body).toEqual({
+        msg: "invalid comment request",
+      });
+    });
+
+    test("400 - returns with error for new user not setup in database", async () => {
+      const commentToPost = {
+        username: "iAm_notSetup",
+        body: "Coding is the future",
+      };
+      const { body } = await request(app)
+        .post("/api/articles/1/comments")
+        .send(commentToPost)
+        .expect(400);
+      expect(body).toEqual({
+        msg: "username: iAm_notSetup is not recognised",
+      });
+    });
+
+    test("404: returns article_id is incorrect for noexistant ids ", async () => {
+      const { body } = await request(app)
+        .post("/api/articles/99999/comments")
+        .expect(404);
+      expect(body).toEqual({
+        msg: "article_id: 99999 is incorrect",
+      });
     });
   });
 });
