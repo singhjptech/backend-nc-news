@@ -1,14 +1,16 @@
-# Northcoders News API
+# Northcoders News API - Jatinder
 
-## Background
+Hosted Project -
 
-We will be building an API for the purpose of accessing application data programmatically. The intention here is to mimic the building of a real world backend service (such as reddit) which should provide this information to the front end architecture.
+## Project Summary
 
-Your database will be PSQL, and you will interact with it using [node-postgres](https://node-postgres.com/).
+Building an API for the purpose of accessing application data programmatically. The intention here is to mimic the building of a real world backend service (such as reddit) which should provide this information to the front end architecture.
+Database used is PSQL7, and will interact using [node-postgres](https://node-postgres.com/).
+PostgresSQL v12.7
+Node.js v
+Setup and seeding phase of this project has been done in pair with team, and building of the server and endpoints has been done in solo sprint.
 
-You will spend the setup and seeding phase of this project in a pair, and separate once its time to build the server up! The point to separate is clearly annotated :)
-
-## Step 1 - Setting up your project
+## Step 1 - Setting up the project
 
 You will need to create _two_ `.env` files for your project: `.env.test` and `.env.development`. Into each, add `PGDATABASE=<database_name_here>`, with the correct database name for that environment (see `/db/setup.sql` for the database names). Double check that these `.env` files are .gitignored.
 
