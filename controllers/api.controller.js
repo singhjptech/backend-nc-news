@@ -78,6 +78,21 @@ const endpoints = {
       ],
     },
   },
+  "POST /api/articles/:article_id/comments": {
+    description: "posts a comment for the article matching provided article_id",
+    queries: [],
+    exampleRequest: { username: "butter_bridge", body: "Coding is the future" },
+    exampleResponse: {
+      comment: {
+        article_id: 1,
+        author: "butter_bridge",
+        body: "Coding is the future",
+        comment_id: 19,
+        created_at: 1527695953341,
+        votes: 0,
+      },
+    },
+  },
 };
 
 module.exports = { getEndpoints };
