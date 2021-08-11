@@ -95,4 +95,4 @@ const endpoints = {
   },
 };
 
-module.exports = { getEndpoints };
+module.exports = { getEndpoints, endpoints };

@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../app");
+const { endpoints } = require("../controllers/api.controller");
 const db = require("../db/connection");
 const testData = require("../db/data/test-data/index.js");
 const seed = require("../db/seeds/seed.js");
@@ -10,9 +11,7 @@ afterAll(() => db.end());
 describe("/api", () => {
   test("responds with JSON object of endpoints", async () => {
     const { body } = await request(app).get("/api").expect(200);
-    expect(body).toEqual({
-      msg: "serves as endpoint for all the available points",
-    });
+    expect(body).toEqual(endpoints);
   });
 
   describe("/api/... 404 for non-existent route/typos", () => {
@@ -24,7 +23,7 @@ describe("/api", () => {
 });
 
 describe("/api/topics", () => {
-  describe("/topics", () => {
+  describe(" GET /topics", () => {
     test("GET 200: returns topic objects", () => {
       return request(app)
         .get("/api/topics")
@@ -43,7 +42,7 @@ describe("/api/topics", () => {
 });
 
 describe("/api/articles/", () => {
-  describe("/articles/:article_id", () => {
+  describe("GET /articles/:article_id", () => {
     test("GET 200: return with the data object for the article_id", async () => {
       const { body } = await request(app).get("/api/articles/1").expect(200);
       expect(body.article).toMatchObject({
@@ -264,3 +263,11 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 });
+
+// describe("/api/comments/:comment_id", () => {
+//   describe("DELETE /api/comments?:comment_id", () => {
+//     test("DELETE 204: returns an empty response body", async () => {
+//       const { body } = await request(app).delete("api/comments/3").expect(204);
+//     });
+//   });
+// });

@@ -11,7 +11,7 @@ Mininum requriements -
 PostgresSQL v12.7
 Node.js v12
 
-## Step 1 - Setting up the project
+## Step 1 - Setting up of the project
 
 Git clone - https://github.com/singhjptech/be-nc-news.git
 Run npm install for dependencies
