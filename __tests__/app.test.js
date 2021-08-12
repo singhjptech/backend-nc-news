@@ -312,7 +312,7 @@ describe("/api/articles/:article_id/comments", () => {
 });
 
 describe("/api/comments/:comment_id", () => {
-  describe("DELETE /api/comments?:comment_id", () => {
+  describe("DELETE /api/comments/:comment_id", () => {
     test("DELETE 204: returns an empty response body", async () => {
       const { body } = await request(app).delete("/api/comments/2").expect(204);
       expect(body).toEqual({});
@@ -330,6 +330,44 @@ describe("/api/comments/:comment_id", () => {
         .delete("/api/comments/99999")
         .expect(404);
       expect(body).toEqual({ msg: "comment not found" });
+    });
+  });
+
+  describe("PATCH /api/comments/:comment_id", () => {
+    test("PATCH 200: return the updated data object for votes key on comment_id as requested", async () => {
+      const { body } = await request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: 34 })
+        .expect(200);
+      expect(body.comment).toMatchObject({
+        comment_id: 1,
+        author: "butter_bridge",
+        article_id: 9,
+        votes: 50,
+        created_at: expect.any(String),
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+      });
+    });
+    test("400: returns bad request for string of incorrect input", async () => {
+      const { body } = await request(app)
+        .patch("/api/comments/notValid")
+        .send({ inc_votes: 34 })
+        .expect(400);
+      expect(body).toEqual({ msg: "bad request" });
+    });
+    test("404: returns not found for invalid comment_id", async () => {
+      const { body } = await request(app)
+        .patch("/api/comments/99999")
+        .send({ inc_votes: 34 })
+        .expect(404);
+      expect(body).toEqual({ msg: "comment not found" });
+    });
+    test("400: returns bad request if inc_votes is missing or not a number", async () => {
+      const { body } = await request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: "notNumber" })
+        .expect(400);
+      expect(body).toEqual({ msg: "bad request" });
     });
   });
 });
