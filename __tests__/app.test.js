@@ -9,13 +9,13 @@ beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe("/api", () => {
-  test("responds with JSON object of endpoints", async () => {
+  test("GET 200: returns with JSON object of endpoints", async () => {
     const { body } = await request(app).get("/api").expect(200);
     expect(body).toEqual(endpoints);
   });
 
   describe("/api/... 404 for non-existent route/typos", () => {
-    test("404 for non-existent route/typos", async () => {
+    test("404: returns route not found for non-existent route/typos", async () => {
       const { body } = await request(app).get("/not-route").expect(404);
       expect(body).toEqual({ msg: "route not found" });
     });
@@ -43,7 +43,7 @@ describe("/api/topics", () => {
 
 describe("/api/articles/", () => {
   describe("GET /articles/:article_id", () => {
-    test("GET 200: return with the data object for the article_id", async () => {
+    test("GET 200: returns with the data object for the article_id", async () => {
       const { body } = await request(app).get("/api/articles/1").expect(200);
       expect(body.article).toMatchObject({
         author: "butter_bridge",
@@ -53,12 +53,18 @@ describe("/api/articles/", () => {
         topic: "mitch",
         created_at: expect.any(String),
         votes: 100,
-        comment_count: expect.any(Number),
+        comment_count: "13",
       });
     });
-    test("400: for bad requess for an invalid article_id", async () => {
+    test("400: returns bad request for an invalid article_id", async () => {
       const { body } = await request(app).get("/api/articles/bad").expect(400);
       expect(body).toEqual({ msg: "bad request" });
+    });
+    test("404: returns not found for a non existent article_id", async () => {
+      const { body } = await request(app)
+        .get("/api/articles/99999")
+        .expect(404);
+      expect(body).toEqual({ msg: "not found" });
     });
   });
 
@@ -76,11 +82,11 @@ describe("/api/articles/", () => {
         topic: "mitch",
         created_at: expect.any(String),
         votes: 125,
-        comment_count: expect.any(Number),
+        comment_count: "13",
       });
     });
 
-    test("400 for an invalid number of votes", async () => {
+    test("400: returns bad request invalid number of votes", async () => {
       const { body } = await request(app)
         .patch("/api/articles/1")
         .send({ inc_votes: "not_a_number" })
@@ -88,7 +94,15 @@ describe("/api/articles/", () => {
       expect(body).toEqual({ msg: "bad request" });
     });
 
-    test("400 for request without inc_votes on the request body", async () => {
+    test("404: returns not found for invalid article_id", async () => {
+      const { body } = await request(app)
+        .patch("/api/articles/99999")
+        .send({ inc_votes: 25 })
+        .expect(404);
+      expect(body).toEqual({ msg: "not found" });
+    });
+
+    test("400: for request without inc_votes on the request body", async () => {
       const { body } = await request(app)
         .patch("/api/articles/1")
         .send({ random_key: 25 })
@@ -114,7 +128,7 @@ describe("/api/articles/", () => {
       });
     });
 
-    test("GET 200 - returns with an array of article objects sorted by date descending by default", async () => {
+    test("GET 200: returns with an array of article objects sorted by date descending by default", async () => {
       const { body } = await request(app).get("/api/articles").expect(200);
       expect(body.articles).toBeSortedBy("created_at", { descending: true });
       expect(body.articles[0]).toMatchObject({
@@ -127,6 +141,14 @@ describe("/api/articles/", () => {
         votes: 0,
         comment_count: 0,
       });
+    });
+
+    test("GET 200: return articles sorted by votes", async () => {
+      const { body } = await request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200);
+      expect(body.articles[0].article_id).toBe(1);
+      expect(body.articles).toBeSortedBy("votes", { descending: true });
     });
 
     test("GET 200: return articles sorted by ascending order", async () => {
@@ -144,19 +166,34 @@ describe("/api/articles/", () => {
       expect(body.articles).toHaveLength(0);
     });
 
-    test("400 - returns with sort_by error message when an invalid column is provided at the query URL", async () => {
+    test("GET 200: return articles sorted by topic", async () => {
+      const { body } = await request(app)
+        .get("/api/articles?sort_by=topic")
+        .expect(200);
+      expect(body.articles[0].article_id).toBe(11);
+      expect(body.articles).toBeSortedBy("topic", { descending: true });
+    });
+
+    test("400: returns with sort_by error message when an invalid column is provided at the query URL", async () => {
       const { body } = await request(app)
         .get("/api/articles?sort_by=notValid")
         .expect(400);
       expect(body).toEqual({ msg: "Not a valid sort_by column" });
     });
 
-    test("400 - returns with an order error message when an invalid column is provided at the query URL", async () => {
+    test("400: returns with an order error message when an invalid column is provided at the query URL", async () => {
       const { body } = await request(app)
         .get("/api/articles?order=flat")
         .expect(400);
       expect(body).toEqual({ msg: "Not a valid order provided" });
     });
+
+    // test("404: returns not found when an non-existent topic is provided at the query URL", async () => {
+    //   const { body } = await request(app)
+    //     .get("/api/articles?topic=bananas")
+    //     .expect(404);
+    //   expect(body).toEqual({ msg: "not found" });
+    // });
   });
 });
 
@@ -194,7 +231,7 @@ describe("/api/articles/:article_id/comments", () => {
       });
     });
 
-    test("GET - status 200 - responds with an empty array for provided article id with no comments", async () => {
+    test("GET 200: returns with an empty array for provided article id with no comments", async () => {
       const { body } = await request(app)
         .get("/api/articles/4/comments")
         .expect(200);
@@ -239,7 +276,7 @@ describe("/api/articles/:article_id/comments", () => {
       });
     });
 
-    test("400 - returns with error for new user not setup in database", async () => {
+    test("404: returns with error for new user not setup in database", async () => {
       const commentToPost = {
         username: "iAm_notSetup",
         body: "Coding is the future",
@@ -247,27 +284,56 @@ describe("/api/articles/:article_id/comments", () => {
       const { body } = await request(app)
         .post("/api/articles/1/comments")
         .send(commentToPost)
-        .expect(400);
+        .expect(404);
       expect(body).toEqual({
-        msg: "username: iAm_notSetup is not recognised",
+        msg: "username not found",
       });
     });
 
-    test("404: returns article_id is incorrect for noexistant ids ", async () => {
+    test("400: returns with error for invalid id input", async () => {
+      const commentToPost = {
+        username: "butter_bridge",
+        body: "Coding is the future",
+      };
+      const { body } = await request(app)
+        .post("/api/articles/invalidString/comments")
+        .send(commentToPost)
+        .expect(400);
+      expect(body).toEqual({
+        msg: "bad request",
+      });
+    });
+
+    test("404: returns not found for non-existant ids ", async () => {
       const { body } = await request(app)
         .post("/api/articles/99999/comments")
         .expect(404);
       expect(body).toEqual({
-        msg: "article_id: 99999 is incorrect",
+        msg: "not found",
       });
     });
   });
 });
 
-// describe("/api/comments/:comment_id", () => {
-//   describe("DELETE /api/comments?:comment_id", () => {
-//     test("DELETE 204: returns an empty response body", async () => {
-//       const { body } = await request(app).delete("api/comments/3").expect(204);
-//     });
-//   });
-// });
+describe("/api/comments/:comment_id", () => {
+  describe("DELETE /api/comments?:comment_id", () => {
+    test("DELETE 204: returns an empty response body", async () => {
+      const { body } = await request(app).delete("/api/comments/2").expect(204);
+      expect(body).toEqual({});
+    });
+
+    test("400: returns invalid input", async () => {
+      const { body } = await request(app)
+        .delete("/api/comments/notValid")
+        .expect(400);
+      expect(body).toEqual({ msg: "bad request" });
+    });
+
+    test("404: returns not found for invalid comment_id", async () => {
+      const { body } = await request(app)
+        .delete("/api/comments/99999")
+        .expect(404);
+      expect(body).toEqual({ msg: "comment not found" });
+    });
+  });
+});

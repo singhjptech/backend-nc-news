@@ -1,8 +1,8 @@
 const db = require("../connection");
 const format = require("pg-format");
 const {
-  mapTopic,
-  mapUsers,
+  formatTopic,
+  formatUsers,
   formatComments,
   formatArticles,
 } = require("../utils/data-manipulation");
@@ -40,14 +40,14 @@ const seed = async (data) => {
     created_at TIMESTAMP DEFAULT current_timestamp,
     body TEXT NOT NULL);`);
 
-  const topicValues = mapTopic(topicData);
+  const topicValues = formatTopic(topicData);
   const topicInsertStr = format(
     `INSERT INTO topics (slug, description) VALUES %L RETURNING *;`,
     topicValues
   );
   await db.query(topicInsertStr);
 
-  const userValues = mapUsers(userData);
+  const userValues = formatUsers(userData);
   const userInsertStr = format(
     `INSERT INTO users (username, avatar_url, name) VALUES %L RETURNING *;`,
     userValues

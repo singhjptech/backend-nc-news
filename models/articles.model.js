@@ -1,17 +1,23 @@
 const db = require("../db/connection");
 
 const selectArticleById = async (article_id) => {
-  const queryStr = `SELECT articles.*, COUNT (comment_id) AS comment_count
-    FROM articles
-    LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id`;
+  const result = await db.query(
+    `SELECT articles.*, COUNT(comment_id) AS comment_count 
+        FROM articles 
+        LEFT JOIN comments ON articles.article_id=comments.article_id
+        WHERE articles.article_id=$1
+        GROUP BY articles.article_id;`,
+    [article_id]
+  );
 
-  const result = await db.query(queryStr, [article_id]);
-  const articleWithCommentCount = result.rows[0];
+  if (result.rowCount === 0) {
+    return Promise.reject({
+      status: 404,
+      msg: "not found",
+    });
+  }
 
-  articleWithCommentCount.comment_count =
-    +articleWithCommentCount.comment_count;
-
-  return articleWithCommentCount;
+  return result.rows[0];
 };
 
 const updateArticleById = async (article_id, newVote) => {
@@ -23,6 +29,13 @@ const updateArticleById = async (article_id, newVote) => {
     [updatedArticle, article_id]
   );
   article.votes += newVote;
+
+  if (article.rowCount === 0) {
+    return Promise.reject({
+      status: 404,
+      msg: "not found",
+    });
+  }
 
   return article;
 };
@@ -113,7 +126,7 @@ const insertComments = async (article_id, newComment) => {
   if (resultWithArticleId.rows.length === 0) {
     return Promise.reject({
       status: 404,
-      msg: `article_id: ${article_id} is incorrect`,
+      msg: `not found`,
     });
   }
   const { username, body } = newComment;
@@ -125,8 +138,8 @@ const insertComments = async (article_id, newComment) => {
     );
     if (usernameResult.rows.length === 0) {
       return Promise.reject({
-        status: 400,
-        msg: `username: ${username} is not recognised`,
+        status: 404,
+        msg: `username not found`,
       });
     }
 

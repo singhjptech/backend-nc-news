@@ -1,38 +1,38 @@
 const {
-  mapTopic,
-  mapUsers,
+  formatTopic,
+  formatUsers,
   formatComments,
   formatArticles,
 } = require("../db/utils/data-manipulation");
 
-describe("mapTopic()", () => {
+describe("formatTopic()", () => {
   test("should return an array", () => {
     const input = [];
-    const actualOutput = mapTopic(input);
+    const actualOutput = formatTopic(input);
     expect(Array.isArray(actualOutput)).toEqual(true);
   });
   test("should not mutate the input array ", () => {
     const input = [];
-    expect(mapTopic(input)).not.toBe(input);
+    expect(formatTopic(input)).not.toBe(input);
   });
   test("should return an array with length equal to amoumnt of objects in input array", () => {
     const input = [{ description: "FOOTIE!", slug: "football" }];
     const expectedOutput = [["football", "FOOTIE!"]];
-    expect(mapTopic(input)).toEqual(expectedOutput);
+    expect(formatTopic(input)).toEqual(expectedOutput);
     expect(expectedOutput).toHaveLength(1);
   });
 });
 
-describe("mapUsers()", () => {
+describe("formatUsers()", () => {
   test("should return an array", () => {
     const input = [];
-    const actualOutput = mapUsers(input);
+    const actualOutput = formatUsers(input);
     expect(Array.isArray(actualOutput)).toEqual(true);
   });
 
   test("should not mutate the input array ", () => {
     const input = [];
-    expect(mapUsers(input)).not.toBe(input);
+    expect(formatUsers(input)).not.toBe(input);
   });
 
   test("should return an array with length equal to amoumnt of objects in input array", () => {
@@ -51,7 +51,7 @@ describe("mapUsers()", () => {
         "Tom Tickle",
       ],
     ];
-    expect(mapUsers(input)).toEqual(expectedOutput);
+    expect(formatUsers(input)).toEqual(expectedOutput);
     expect(expectedOutput).toHaveLength(1);
   });
 
@@ -93,7 +93,7 @@ describe("mapUsers()", () => {
         "Amy Happy",
       ],
     ];
-    expect(mapUsers(input)).toEqual(expectedOutput);
+    expect(formatUsers(input)).toEqual(expectedOutput);
     expect(expectedOutput).toHaveLength(3);
   });
 });
