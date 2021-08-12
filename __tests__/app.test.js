@@ -24,19 +24,15 @@ describe("/api", () => {
 
 describe("/api/topics", () => {
   describe(" GET /topics", () => {
-    test("GET 200: returns topic objects", () => {
-      return request(app)
-        .get("/api/topics")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.topics.length > 0).toBe(true);
-          body.topics.forEach((topic) => {
-            expect(topic).toMatchObject({
-              slug: expect.any(String),
-              description: expect.any(String),
-            });
-          });
+    test("GET 200: returns topic objects", async () => {
+      const { body } = await request(app).get("/api/topics").expect(200);
+      expect(body.topics.length > 0).toBe(true);
+      body.topics.forEach((topic) => {
+        expect(topic).toMatchObject({
+          slug: expect.any(String),
+          description: expect.any(String),
         });
+      });
     });
   });
 });
@@ -334,6 +330,40 @@ describe("/api/comments/:comment_id", () => {
         .delete("/api/comments/99999")
         .expect(404);
       expect(body).toEqual({ msg: "comment not found" });
+    });
+  });
+});
+
+describe("/api/users", () => {
+  describe("GET /users", () => {
+    test("GET 200: returns users object", async () => {
+      const { body } = await request(app).get("/api/users").expect(200);
+      expect(body.users.length).toBe(4);
+      body.users.forEach((user) => {
+        expect(user).toMatchObject({
+          username: expect.any(String),
+          avatar_url: expect.any(String),
+          name: expect.any(String),
+        });
+      });
+    });
+  });
+  describe("GET /users/:username", () => {
+    test("GET 200: returns the data object for the username", async () => {
+      const { body } = await request(app)
+        .get("/api/users/rogersop")
+        .expect(200);
+      expect(body.user).toMatchObject({
+        username: "rogersop",
+        avatar_url:
+          "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
+        name: "paul",
+      });
+    });
+
+    test("404: returns username is not valid for non-existant username", async () => {
+      const { body } = await request(app).get("/api/users/99999").expect(404);
+      expect(body).toEqual({ msg: "username: 99999 is not valid" });
     });
   });
 });
