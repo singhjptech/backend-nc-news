@@ -404,4 +404,45 @@ describe("/api/users", () => {
       expect(body).toEqual({ msg: "username: 99999 is not valid" });
     });
   });
+
+  describe("PATCH /users/:username", () => {
+    test("PATCH 200: return the updated data object with name of username", async () => {
+      const { body } = await request(app)
+        .patch("/api/users/rogersop")
+        .send({ name: "john" })
+        .expect(200);
+      expect(body.user).toMatchObject({
+        username: "rogersop",
+        avatar_url:
+          "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
+        name: "john",
+      });
+    });
+
+    test("404: returns bad request for string of incorrect input", async () => {
+      const { body } = await request(app)
+        .patch("/api/users/not-a-username")
+        .send({ name: "john" })
+        .expect(404);
+      expect(body).toEqual({ msg: "incorrect username" });
+    });
+
+    test("404: returns not found for invalid username", async () => {
+      const { body } = await request(app)
+        .patch("/api/users/99999")
+        .send({ name: "john" })
+        .expect(404);
+      expect(body).toEqual({
+        msg: "incorrect username",
+      });
+    });
+
+    test("400: returns bad request if name is missing or not a string", async () => {
+      const { body } = await request(app)
+        .patch("/api/users/rogersop")
+        .send({ name: 123 })
+        .expect(400);
+      expect(body).toEqual({ msg: "user not found" });
+    });
+  });
 });
